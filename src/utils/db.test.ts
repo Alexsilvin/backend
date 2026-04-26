@@ -1,4 +1,4 @@
-import { closePool, testConnection } from './db';
+import { closePool, testConnection } from './db.js';
 
 async function main(): Promise<void> {
   const ok = await testConnection();

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { getPool } from '../utils/db';
-import { hashToken, parseCookies, getSessionCookieName } from '../utils/auth';
-import { UserRow } from '../types';
+import { getPool } from '../utils/db.js';
+import { hashToken, parseCookies, getSessionCookieName } from '../utils/auth.js';
+import { UserRow } from '../types/index.js';
 
 /**
  * Extend Express Request to include user

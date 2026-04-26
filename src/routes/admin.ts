@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { requireAdmin } from '../middleware/auth';
-import { getPool } from '../utils/db';
-import { createSignedUploadUrl, sanitizeFilename, normalizeLicenseType } from '../utils/s3';
+import { requireAdmin } from '../middleware/auth.js';
+import { getPool } from '../utils/db.js';
+import { createSignedUploadUrl, sanitizeFilename, normalizeLicenseType } from '../utils/s3.js';
 
 const router = Router();
 

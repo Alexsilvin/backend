@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { getPool } from '../utils/db';
-import { createSignedDownloadUrl } from '../utils/s3';
-import { getSessionUser } from '../middleware/auth';
-import type { GameRow } from '../types';
+import { getPool } from '../utils/db.js';
+import { createSignedDownloadUrl } from '../utils/s3.js';
+import { getSessionUser } from '../middleware/auth.js';
+import type { GameRow } from '../types/index.js';
 
 const router = Router();
 

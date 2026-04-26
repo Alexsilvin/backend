@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { getPool } from '../utils/db';
+import { getPool } from '../utils/db.js';
 import {
   hashPassword,
   verifyPassword,
@@ -9,9 +9,9 @@ import {
   getSessionExpiration,
   getSessionCookieName,
   parseCookies,
-} from '../utils/auth';
-import { getSessionUser } from '../middleware/auth';
-import type { UserRow, AuthSessionResponse } from '../types';
+} from '../utils/auth.js';
+import { getSessionUser } from '../middleware/auth.js';
+import type { UserRow, AuthSessionResponse } from '../types/index.js';
 
 const router = Router();
 

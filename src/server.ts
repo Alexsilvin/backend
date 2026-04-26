@@ -6,18 +6,18 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Middleware
-import { getCorsOptions } from './middleware/cors';
-import { errorHandler, notFoundHandler } from './middleware/errors';
+import { getCorsOptions } from './middleware/cors.js';
+import { errorHandler, notFoundHandler } from './middleware/errors.js';
 
 // Database
-import { initializeDatabase, testConnection } from './utils/db';
+import { initializeDatabase, testConnection } from './utils/db.js';
 
 // Routes
-import authRoutes from './routes/auth';
-import gamesRoutes from './routes/games';
-import bucketRoutes from './routes/bucket';
-import adminRoutes from './routes/admin';
-import socialRoutes from './routes/social';
+import authRoutes from './routes/auth.js';
+import gamesRoutes from './routes/games.js';
+import bucketRoutes from './routes/bucket.js';
+import adminRoutes from './routes/admin.js';
+import socialRoutes from './routes/social.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const app: Express = express();
