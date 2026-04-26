@@ -384,8 +384,12 @@ router.post('/purchase', async (req: Request, res: Response) => {
 
     await client.query(
       `INSERT INTO library (user_id, game_id)
-       VALUES ($1, $2)
-       ON CONFLICT (user_id, game_id) DO NOTHING`,
+       SELECT $1, $2
+       WHERE NOT EXISTS (
+         SELECT 1
+         FROM library
+         WHERE user_id = $1 AND game_id = $2
+       )`,
       [userId, gameId]
     );
 
