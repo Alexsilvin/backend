@@ -227,6 +227,7 @@ export async function initializeDatabase(): Promise<void> {
       );
 
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_tier TEXT NOT NULL DEFAULT 'rookie';
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS subtotal NUMERIC(12,2) NOT NULL DEFAULT 0;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS subtotal_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS tax_amount NUMERIC(12,2) NOT NULL DEFAULT 0;

@@ -121,6 +121,7 @@ async function ensureCommerceSchema(): Promise<void> {
       );
 
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_tier TEXT NOT NULL DEFAULT 'rookie';
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS subtotal NUMERIC(12,2) NOT NULL DEFAULT 0;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS subtotal_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS tax_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
@@ -342,8 +343,8 @@ router.post('/purchase', async (req: Request, res: Response) => {
     }
 
     const orderResult = await client.query<{ id: string }>(
-      `INSERT INTO orders (user_id, customer_tier, subtotal_amount, discount_amount, tax_amount, total_amount, currency_code, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'XAF', 'paid')
+      `INSERT INTO orders (user_id, customer_tier, subtotal, subtotal_amount, discount_amount, tax_amount, total_amount, currency_code, status)
+       VALUES ($1, $2, $3, $3, $4, $5, $6, 'XAF', 'paid')
        RETURNING id`,
       [userId, customer.tier, basePrice, discountAmount, taxAmount, totalAmount]
     );
