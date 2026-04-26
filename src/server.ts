@@ -20,6 +20,8 @@ import notificationsRoutes from './routes/notifications.js';
 import walletRoutes from './routes/wallet.js';
 import adminRoutes from './routes/admin.js';
 import socialRoutes from './routes/social.js';
+import messagesRoutes from './routes/messages.js';
+import groupsRoutes from './routes/groups.js';
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const app: Express = express();
@@ -58,6 +60,8 @@ function initializeRoutes(app: Express): void {
   app.use('/api/wallet', walletRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/friends', socialRoutes);
+  app.use('/api/messages', messagesRoutes);
+  app.use('/api/groups', groupsRoutes);
 
   // Catch-all for undefined routes
   app.use(notFoundHandler);
@@ -100,6 +104,8 @@ async function startServer(): Promise<void> {
       console.log('   Bucket: GET/POST/PUT/DELETE /api/bucket');
       console.log('   Wallet: GET /api/wallet, GET /api/wallet/purchases, POST /api/wallet/purchase');
       console.log('   Friends: GET/POST /api/friends');
+      console.log('   Messages: GET/POST/PATCH /api/messages');
+      console.log('   Groups: GET/POST /api/groups, GET/POST /api/groups/:groupId/messages');
       console.log('   Admin: GET /api/admin/overview, POST /api/admin/rom-upload-url, /api/admin/register-rom');
       console.log('   Social: GET /api/friends/notifications, PATCH/DELETE /api/friends/notifications\n');
     });
