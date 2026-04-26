@@ -16,6 +16,7 @@ import { initializeDatabase, testConnection } from './utils/db.js';
 import authRoutes from './routes/auth.js';
 import gamesRoutes from './routes/games.js';
 import bucketRoutes from './routes/bucket.js';
+import walletRoutes from './routes/wallet.js';
 import adminRoutes from './routes/admin.js';
 import socialRoutes from './routes/social.js';
 
@@ -52,6 +53,7 @@ function initializeRoutes(app: Express): void {
   app.use('/api/auth', authRoutes);
   app.use('/api/games', gamesRoutes);
   app.use('/api/bucket', bucketRoutes);
+  app.use('/api/wallet', walletRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/friends', socialRoutes);
 
@@ -94,6 +96,7 @@ async function startServer(): Promise<void> {
       console.log('   Auth:  POST /api/auth/signup, /api/auth/login, /api/auth/logout, GET /api/auth/me');
       console.log('   Games: GET /api/games');
       console.log('   Bucket: GET/POST/PUT/DELETE /api/bucket');
+      console.log('   Wallet: GET /api/wallet, GET /api/wallet/purchases, POST /api/wallet/purchase');
       console.log('   Friends: GET/POST /api/friends');
       console.log('   Admin: GET /api/admin/overview, POST /api/admin/rom-upload-url, /api/admin/register-rom');
       console.log('   Social: GET /api/friends/notifications, PATCH/DELETE /api/friends/notifications\n');
