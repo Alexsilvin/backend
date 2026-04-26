@@ -343,15 +343,15 @@ router.post('/purchase', async (req: Request, res: Response) => {
 
     const orderResult = await client.query<{ id: string }>(
       `INSERT INTO orders (user_id, customer_tier, subtotal_amount, discount_amount, tax_amount, total_amount, currency_code, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'XAF', 'completed')
+       VALUES ($1, $2, $3, $4, $5, $6, 'XAF', 'paid')
        RETURNING id`,
       [userId, customer.tier, basePrice, discountAmount, taxAmount, totalAmount]
     );
 
     await client.query(
-      `INSERT INTO order_items (order_id, game_id, quantity, unit_price, discount_percent)
-       VALUES ($1, $2, 1, $3, $4)`,
-      [orderResult.rows[0].id, gameId, basePrice, customer.discountPercent]
+      `INSERT INTO order_items (order_id, game_id, quantity, unit_price, discount_percent, line_total)
+       VALUES ($1, $2, 1, $3, $4, $5)`,
+      [orderResult.rows[0].id, gameId, basePrice, customer.discountPercent, totalAmount]
     );
 
     const txResult = await client.query<{ id: string }>(
@@ -370,7 +370,7 @@ router.post('/purchase', async (req: Request, res: Response) => {
 
     await client.query(
       `INSERT INTO payments (order_id, user_id, payment_method_id, wallet_transaction_id, amount, currency_code, status, provider)
-       VALUES ($1, $2, NULL, $3, $4, 'XAF', 'completed', 'wallet')`,
+       VALUES ($1, $2, NULL, $3, $4, 'XAF', 'captured', 'wallet')`,
       [orderResult.rows[0].id, userId, txResult.rows[0].id, totalAmount]
     );
 
