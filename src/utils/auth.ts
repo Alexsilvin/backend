@@ -51,6 +51,14 @@ export function createSessionToken(): string {
   return `${crypto.randomUUID()}.${crypto.randomBytes(24).toString('hex')}`;
 }
 
+function normalizeSameSite(value: string | undefined): 'lax' | 'strict' | 'none' {
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === 'strict' || normalized === 'none') {
+    return normalized;
+  }
+  return 'lax';
+}
+
 /**
  * Get session cookie options
  */
@@ -61,10 +69,19 @@ export function getCookieOptions(): {
   path: string;
   maxAge: number;
 } {
+  const sameSite = normalizeSameSite(
+    process.env.SESSION_COOKIE_SAMESITE ||
+      (process.env.NODE_ENV === 'production' ? 'none' : 'lax')
+  );
+  const secure =
+    process.env.SESSION_COOKIE_SECURE != null
+      ? process.env.SESSION_COOKIE_SECURE === 'true'
+      : process.env.NODE_ENV === 'production' || sameSite === 'none';
+
   return {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    sameSite,
+    secure,
     path: '/',
     maxAge: Math.floor(SESSION_TTL_MS / 1000),
   };

@@ -173,7 +173,13 @@ router.post('/logout', async (req: Request, res: Response) => {
       await p.query(`DELETE FROM auth_sessions WHERE token_hash = $1`, [tokenHash]);
     }
 
-    res.clearCookie(getSessionCookieName(), { path: '/' });
+    const cookieOptions = getCookieOptions();
+    res.clearCookie(getSessionCookieName(), {
+      httpOnly: cookieOptions.httpOnly,
+      sameSite: cookieOptions.sameSite,
+      secure: cookieOptions.secure,
+      path: cookieOptions.path,
+    });
     res.json({ ok: true });
   } catch (err) {
     console.error('Logout failed:', err);
