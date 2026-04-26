@@ -37,6 +37,21 @@ async function ensureCommerceSchema(): Promise<void> {
     commerceSchemaBootstrap = p.query(`
       CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS image TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS category TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS platform TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS publisher TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS edition TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS stock_quantity INT NOT NULL DEFAULT 0;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS warehouse_zone TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS discount_percent NUMERIC(5,2) NOT NULL DEFAULT 0;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS rom_storage_key TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS rom_filename TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS rom_size_bytes BIGINT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS rom_sha256 TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS license_type TEXT;
+      ALTER TABLE games ADD COLUMN IF NOT EXISTS is_downloadable BOOLEAN NOT NULL DEFAULT FALSE;
+
       CREATE TABLE IF NOT EXISTS library (
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         game_id INT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
