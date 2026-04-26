@@ -1,0 +1,409 @@
+{
+  "info": {
+    "name": "NEON GRID Backend API",
+    "description": "Complete API collection for NEON GRID backend testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "neon-grid-api"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"testuser\",\"email\":\"test@example.com\",\"password\":\"password123\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/signup",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"testuser\",\"password\":\"password123\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Games",
+      "item": [
+        {
+          "name": "Get All Games",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/games",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games"]
+            }
+          }
+        },
+        {
+          "name": "Get Game by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/games/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Download URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gameId\":1,\"expiresInSeconds\":300}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/games/download-url",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "download-url"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bucket",
+      "item": [
+        {
+          "name": "Get Bucket Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bucket",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bucket"]
+            }
+          }
+        },
+        {
+          "name": "Add to Bucket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gameId\":1}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bucket",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bucket"]
+            }
+          }
+        },
+        {
+          "name": "Remove from Bucket",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gameId\":1}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bucket",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bucket"]
+            }
+          }
+        },
+        {
+          "name": "Replace Bucket",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gameIds\":[1,2,3]}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bucket",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bucket"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Friends",
+      "item": [
+        {
+          "name": "Get Friends",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/friends",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends"]
+            }
+          }
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/friends?search=admin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "admin"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Friend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\":\"admin\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/friends",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/friends/notifications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends", "notifications"]
+            }
+          }
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/friends/notifications?action=mark-all-read",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends", "notifications"],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "mark-all-read"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete All Notifications",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/friends/notifications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "friends", "notifications"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/overview",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "overview"]
+            }
+          }
+        },
+        {
+          "name": "Get ROM Upload URL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gameId\":1,\"filename\":\"game.zip\",\"contentType\":\"application/zip\",\"expiresInSeconds\":300}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/rom-upload-url",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "rom-upload-url"]
+            }
+          }
+        },
+        {
+          "name": "Register ROM",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"gameId\":1,\"romStorageKey\":\"roms/1/game.zip\",\"romFilename\":\"game.zip\",\"romSizeBytes\":1234567,\"licenseType\":\"licensed\",\"isDownloadable\":true}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/register-rom",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "register-rom"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "API Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "status"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    }
+  ]
+}

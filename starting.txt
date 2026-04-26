@@ -1,0 +1,5 @@
+cd backend
+cp .env.example .env
+# Edit .env with your PostgreSQL credentials
+npm install
+npm run dev
