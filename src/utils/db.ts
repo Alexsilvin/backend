@@ -173,6 +173,10 @@ export async function initializeDatabase(): Promise<void> {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+      ALTER TABLE wallets ADD COLUMN IF NOT EXISTS balance NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE wallets ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+      ALTER TABLE wallets ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
       CREATE TABLE IF NOT EXISTS wallet_transactions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -184,6 +188,13 @@ export async function initializeDatabase(): Promise<void> {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+      ALTER TABLE wallet_transactions ADD COLUMN IF NOT EXISTS payment_method_id TEXT;
+      ALTER TABLE wallet_transactions ADD COLUMN IF NOT EXISTS transaction_type TEXT NOT NULL DEFAULT 'unknown';
+      ALTER TABLE wallet_transactions ADD COLUMN IF NOT EXISTS amount NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE wallet_transactions ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'completed';
+      ALTER TABLE wallet_transactions ADD COLUMN IF NOT EXISTS description TEXT;
+      ALTER TABLE wallet_transactions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
       CREATE TABLE IF NOT EXISTS payment_methods (
         id TEXT PRIMARY KEY,
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -194,6 +205,13 @@ export async function initializeDatabase(): Promise<void> {
         is_active BOOLEAN NOT NULL DEFAULT true,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+
+      ALTER TABLE payment_methods ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'unknown';
+      ALTER TABLE payment_methods ADD COLUMN IF NOT EXISTS provider TEXT NOT NULL DEFAULT 'unknown';
+      ALTER TABLE payment_methods ADD COLUMN IF NOT EXISTS last_four TEXT;
+      ALTER TABLE payment_methods ADD COLUMN IF NOT EXISTS is_default BOOLEAN NOT NULL DEFAULT false;
+      ALTER TABLE payment_methods ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true;
+      ALTER TABLE payment_methods ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
       CREATE TABLE IF NOT EXISTS orders (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -208,6 +226,15 @@ export async function initializeDatabase(): Promise<void> {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_tier TEXT NOT NULL DEFAULT 'rookie';
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS subtotal_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS tax_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS total_amount NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS currency_code CHAR(3) NOT NULL DEFAULT 'XAF';
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'completed';
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
       CREATE TABLE IF NOT EXISTS order_items (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -218,6 +245,11 @@ export async function initializeDatabase(): Promise<void> {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         UNIQUE (order_id, game_id)
       );
+
+      ALTER TABLE order_items ADD COLUMN IF NOT EXISTS quantity INT NOT NULL DEFAULT 1;
+      ALTER TABLE order_items ADD COLUMN IF NOT EXISTS unit_price NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE order_items ADD COLUMN IF NOT EXISTS discount_percent NUMERIC(5,2) NOT NULL DEFAULT 0;
+      ALTER TABLE order_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
       CREATE TABLE IF NOT EXISTS payments (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -232,6 +264,14 @@ export async function initializeDatabase(): Promise<void> {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
+      ALTER TABLE payments ADD COLUMN IF NOT EXISTS payment_method_id TEXT;
+      ALTER TABLE payments ADD COLUMN IF NOT EXISTS wallet_transaction_id UUID;
+      ALTER TABLE payments ADD COLUMN IF NOT EXISTS amount NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE payments ADD COLUMN IF NOT EXISTS currency_code CHAR(3) NOT NULL DEFAULT 'XAF';
+      ALTER TABLE payments ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'completed';
+      ALTER TABLE payments ADD COLUMN IF NOT EXISTS provider TEXT NOT NULL DEFAULT 'wallet';
+      ALTER TABLE payments ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
       CREATE TABLE IF NOT EXISTS game_purchases (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -242,6 +282,11 @@ export async function initializeDatabase(): Promise<void> {
         purchased_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         UNIQUE (user_id, game_id)
       );
+
+      ALTER TABLE game_purchases ADD COLUMN IF NOT EXISTS order_id UUID;
+      ALTER TABLE game_purchases ADD COLUMN IF NOT EXISTS transaction_id UUID;
+      ALTER TABLE game_purchases ADD COLUMN IF NOT EXISTS price_paid NUMERIC(12,2) NOT NULL DEFAULT 0;
+      ALTER TABLE game_purchases ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
       CREATE TABLE IF NOT EXISTS messages (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
