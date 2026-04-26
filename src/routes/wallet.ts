@@ -224,8 +224,8 @@ router.post('/purchase', async (req: Request, res: Response) => {
     await client.query('BEGIN');
     await ensureWalletRow(client, userId);
 
-    const gameResult = await client.query<{ id: string; title: string; price: number; stock_quantity: number | null }>(
-      `SELECT id, title, price, stock_quantity
+    const gameResult = await client.query<{ id: string; title: string; price: number; stock_quantity: number | null; is_downloadable: boolean }>(
+      `SELECT id, title, price, stock_quantity, is_downloadable
        FROM games
        WHERE id = $1
        LIMIT 1`,
@@ -264,7 +264,8 @@ router.post('/purchase', async (req: Request, res: Response) => {
       return;
     }
 
-    if (game.stock_quantity !== null && Number(game.stock_quantity) <= 0) {
+    const usesFiniteStock = !game.is_downloadable && game.stock_quantity !== null;
+    if (usesFiniteStock && Number(game.stock_quantity) <= 0) {
       await client.query('ROLLBACK');
       res.status(409).json({ error: 'This game is out of stock' });
       return;
@@ -342,7 +343,7 @@ router.post('/purchase', async (req: Request, res: Response) => {
       [userId, gameId]
     );
 
-    if (game.stock_quantity !== null) {
+    if (usesFiniteStock) {
       await client.query(
         `UPDATE games
          SET stock_quantity = GREATEST(stock_quantity - 1, 0)
