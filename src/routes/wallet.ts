@@ -4,6 +4,7 @@ import { getPool } from '../utils/db.js';
 import { getSessionUser } from '../middleware/auth.js';
 
 const router = Router();
+let commerceSchemaBootstrap: Promise<void> | null = null;
 
 async function getUserId(req: Request, res: Response): Promise<string | null> {
   const user = await getSessionUser(req);
@@ -30,12 +31,122 @@ function getCustomerTier(totalSpent: number) {
   return { tier: 'rookie', discountPercent: 0 };
 }
 
+async function ensureCommerceSchema(): Promise<void> {
+  if (!commerceSchemaBootstrap) {
+    const p = getPool();
+    commerceSchemaBootstrap = p.query(`
+      CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+      CREATE TABLE IF NOT EXISTS library (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        game_id INT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+        added_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (user_id, game_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS wallets (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        balance NUMERIC(12,2) NOT NULL DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS payment_methods (
+        id TEXT PRIMARY KEY,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        last_four TEXT,
+        is_default BOOLEAN NOT NULL DEFAULT false,
+        is_active BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS wallet_transactions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        payment_method_id TEXT REFERENCES payment_methods(id) ON DELETE SET NULL,
+        transaction_type TEXT NOT NULL,
+        amount NUMERIC(12,2) NOT NULL,
+        status TEXT NOT NULL DEFAULT 'completed',
+        description TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS orders (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        customer_tier TEXT NOT NULL DEFAULT 'rookie',
+        subtotal_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        tax_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        total_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+        currency_code CHAR(3) NOT NULL DEFAULT 'XAF',
+        status TEXT NOT NULL DEFAULT 'completed',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS order_items (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        game_id INT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+        quantity INT NOT NULL DEFAULT 1,
+        unit_price NUMERIC(12,2) NOT NULL,
+        discount_percent NUMERIC(5,2) NOT NULL DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (order_id, game_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS payments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        payment_method_id TEXT REFERENCES payment_methods(id) ON DELETE SET NULL,
+        wallet_transaction_id UUID REFERENCES wallet_transactions(id) ON DELETE SET NULL,
+        amount NUMERIC(12,2) NOT NULL,
+        currency_code CHAR(3) NOT NULL DEFAULT 'XAF',
+        status TEXT NOT NULL DEFAULT 'completed',
+        provider TEXT NOT NULL DEFAULT 'wallet',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS game_purchases (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        game_id INT NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+        order_id UUID REFERENCES orders(id) ON DELETE SET NULL,
+        transaction_id UUID REFERENCES wallet_transactions(id) ON DELETE SET NULL,
+        price_paid NUMERIC(12,2) NOT NULL,
+        purchased_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE (user_id, game_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS notifications (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type TEXT NOT NULL,
+        actor_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        message TEXT,
+        is_read BOOLEAN NOT NULL DEFAULT false,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `).then(() => undefined).catch((error) => {
+      commerceSchemaBootstrap = null;
+      throw error;
+    });
+  }
+
+  return commerceSchemaBootstrap;
+}
+
 router.get('/', async (req: Request, res: Response) => {
   const userId = await getUserId(req, res);
   if (!userId) return;
 
   try {
     const p = getPool();
+    await ensureCommerceSchema();
     await ensureWalletRow(p, userId);
     const result = await p.query(
       `SELECT id, user_id, balance, created_at, updated_at
@@ -63,6 +174,7 @@ router.get('/purchases', async (req: Request, res: Response) => {
 
   try {
     const p = getPool();
+    await ensureCommerceSchema();
     const result = await p.query(
       `SELECT id, game_id, price_paid, purchased_at
        FROM game_purchases
@@ -90,6 +202,7 @@ router.post('/purchase', async (req: Request, res: Response) => {
   }
 
   const p = getPool();
+  await ensureCommerceSchema();
   const client = await p.connect();
 
   try {
@@ -239,7 +352,8 @@ router.post('/purchase', async (req: Request, res: Response) => {
   } catch (err) {
     await client.query('ROLLBACK').catch(() => undefined);
     console.error('Failed to purchase game:', err);
-    res.status(500).json({ error: 'Failed to purchase game' });
+    const message = err instanceof Error ? err.message : 'Failed to purchase game';
+    res.status(500).json({ error: message });
   } finally {
     client.release();
   }

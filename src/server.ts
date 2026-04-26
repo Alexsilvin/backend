@@ -16,6 +16,7 @@ import { initializeDatabase, testConnection } from './utils/db.js';
 import authRoutes from './routes/auth.js';
 import gamesRoutes from './routes/games.js';
 import bucketRoutes from './routes/bucket.js';
+import notificationsRoutes from './routes/notifications.js';
 import walletRoutes from './routes/wallet.js';
 import adminRoutes from './routes/admin.js';
 import socialRoutes from './routes/social.js';
@@ -53,6 +54,7 @@ function initializeRoutes(app: Express): void {
   app.use('/api/auth', authRoutes);
   app.use('/api/games', gamesRoutes);
   app.use('/api/bucket', bucketRoutes);
+  app.use('/api/notifications', notificationsRoutes);
   app.use('/api/wallet', walletRoutes);
   app.use('/api/admin', adminRoutes);
   app.use('/api/friends', socialRoutes);
